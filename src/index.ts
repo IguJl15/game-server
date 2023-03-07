@@ -4,16 +4,10 @@ const app = express();
 
 app.post('/create', (req: Request, res: Response) => {
 
-	
-
 })
 
-app.get('/jogo?code=DASDJASDUNAD', (req, res) => {
+app.get('/jogo?code=asdasd', (req, res) => {
 	res.send('<h1>Home</h1>')
-})
-
-app.get('/login', (req, res) => {
-	res.send('<h1>Login</h1>')
 })
 
 const port = 3000;
