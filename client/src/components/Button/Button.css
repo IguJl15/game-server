@@ -1,0 +1,9 @@
+.button {
+    height: 3rem;
+    width: 6rem;
+
+    border-radius: 8px;
+    border: none;
+    color: black;
+    background: snow;
+}
