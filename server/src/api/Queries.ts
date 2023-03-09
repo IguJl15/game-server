@@ -1,4 +1,4 @@
 interface GameState {
-    boardId?: string
+    boardId: string
     playerId?: string
 }
