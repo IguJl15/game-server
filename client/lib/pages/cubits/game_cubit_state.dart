@@ -6,6 +6,10 @@ abstract class GameCubitState {
   const GameCubitState(this.state);
 }
 
+class GameCubitStateUninitialized extends GameCubitState {
+  GameCubitStateUninitialized(Player player1) : super(GameState.initial(player1));
+}
+
 class GameCubitStateInitial extends GameCubitState {
   GameCubitStateInitial(Player player1) : super(GameState.initial(player1));
 }
