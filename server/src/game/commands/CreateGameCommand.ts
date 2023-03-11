@@ -1,17 +1,22 @@
+import { CreateGameParameters } from "../../api/Mutations";
 import { Board } from "../entities/Board";
 import Player from "../entities/Player";
 import { BoardRepository } from "../repositories/BoardRepository";
+import Utils from "../utils/Utils";
+import GetGameStateCommand from "./GetGameStateCommand";
 
+export default
 class CreateGameCommand {
     constructor(
-        private repository: BoardRepository
+        private repository: BoardRepository,
+        private getBoardCommand: GetGameStateCommand
     ) {}
     
-    execute(userName: String): String {
+    execute(params: CreateGameParameters): Board {
         const player1 = new Player(
             Utils.generateId(),
-            userName,
-            "X",
+            params.playerName!,
+            params.symbol,
         )
 
         const board = new Board(
