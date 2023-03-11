@@ -24,6 +24,8 @@ class CreateGameCommand {
                 player1,
         )
 
-        return this.repository.saveBoard(board)
+        const boardId = this.repository.saveBoard(board)
+        
+        return this.getBoardCommand.execute({playerId: player1.id!, boardId: board.boardId})
     }
 }
