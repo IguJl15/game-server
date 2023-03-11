@@ -12,3 +12,5 @@ interface MarkPosition {
     playerId: string
     position: number
 }
+
+export { CreateGameParameters, JoinGame, MarkPosition, CloseGame }
