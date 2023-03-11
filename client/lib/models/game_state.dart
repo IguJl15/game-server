@@ -35,4 +35,22 @@ enum GameStatus {
   waiting,
   inGame,
   finished;
+
+  static GameStatus parse(String string) {
+    string
+      ..trim()
+      ..toLowerCase();
+
+    switch (string) {
+      case 'waiting':
+        return GameStatus.waiting;
+      case 'ingame':
+      case 'in game':
+        return GameStatus.inGame;
+      case 'finished':
+        return GameStatus.finished;
+      default:
+        throw const FormatException();
+    }
+  }
 }
