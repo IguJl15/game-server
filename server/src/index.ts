@@ -31,11 +31,8 @@ server.on('end', () => {
    console.log('Server ended');
 });
 
-server.on("close", () => {
-   console.log("Servidor fechado")
-})
-
-const port = 3000
-server.listen(port, () => {
-   console.log(`Servidor inicializado na porta ${port}`);
-});
+   static sendMessageToPlayer(state: any, playerId: string) { 
+      console.log(`sending message to player ${playerId}`);
+      
+      this.activeConnections.get(playerId)?.write(JSON.stringify(state)) 
+   }
