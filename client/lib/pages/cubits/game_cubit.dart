@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:client/data/client.dart';
-import 'package:cubit/cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/game_state.dart';
 import '../../models/player.dart';
@@ -10,6 +11,9 @@ part 'game_cubit_state.dart';
 
 class GameCubit extends Cubit<GameCubitState> {
   late SocketClient _client;
+
+  Player player;
+  late bool isSecondPlayer;
 
   GameCubit(this.player) : super(GameCubitStateUninitialized(player)) {
     _client = SocketClient(onData: _onSocketData, onError: _onError);
@@ -47,13 +51,58 @@ class GameCubit extends Cubit<GameCubitState> {
     print('ERROR: $error');
     emit(GameCubitStateFinished(state.state));
   }
+
+  void createNewGame(String playerName) async {
+    final Map<String, dynamic> createGameJson = {
+      'CreateGame': {
+        'playerName': playerName,
+        'symbol': 'X',
+      }
+    };
+
+    _client.sendMessage(jsonEncode(createGameJson));
+
+    isSecondPlayer = false;
+    await _setPlayerFromState();
   }
 
-  void onSocketData(String data) {
-    print("data");
+  void joinExistingGame(String playerName, String boardId) async {
+    if (state is! GameCubitStateInitial) return;
 
-    final json = jsonDecode(data);
+    final Map<String, dynamic> createGameJson = {
+      'JoinGame': {
+        'playerName': playerName,
+        'boardId': boardId,
+      }
+    };
 
-    if (json["GameState"]) {}
+    _client.sendMessage(jsonEncode(createGameJson));
+
+    isSecondPlayer = true;
+    _setPlayerFromState();
+  }
+
+  void markPosition(int position) {
+    assert(0 <= position && position < 9);
+
+    final playerId = player.id!;
+
+    Map<String, dynamic> markPositionJson = {
+      'MarkPosition': {
+        'playerId': playerId,
+        'boardId': state.state.board.id,
+        'position': position,
+      }
+    };
+
+    _client.sendMessage(jsonEncode(markPositionJson));
+  }
+
+  void dispose() {
+    _client.dispose();
+  }
+
+  Future<void> _setPlayerFromState() {
+    return stream.first.then((value) => player = isSecondPlayer ? value.state.player2! : value.state.player1);
   }
 }
