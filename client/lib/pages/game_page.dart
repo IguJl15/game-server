@@ -1,15 +1,19 @@
-import 'package:client/models/game_state.dart';
 import 'package:client/pages/cubits/game_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cubit/flutter_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/player.dart';
+import 'components/game_board.dart';
 
 class GamePage extends StatefulWidget {
-  final Player player;
+  final String playerName;
+  final bool isSecondPlayer;
+  final String? gameId;
 
   const GamePage({
-    required this.player,
+    required this.playerName,
+    required this.isSecondPlayer,
+    this.gameId,
     super.key,
   });
 
@@ -24,34 +28,51 @@ class _GamePageState extends State<GamePage> {
   void initState() {
     super.initState();
 
-    cubit = GameCubit(widget.player);
+    final Player player = Player.empty(widget.playerName);
+
+    cubit = GameCubit(player);
+    cubit.initialize();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.player.name),
+        title: Text(widget.playerName),
+        centerTitle: true,
       ),
-      body: CubitConsumer<GameCubit, GameCubitState>(
-        cubit: cubit,
-        listener: (context, state) {},
-        builder: (context, state) => GameBoard(gameState: state.state),
+      body: BlocConsumer<GameCubit, GameCubitState>(
+        bloc: cubit,
+        listener: (context, state) {
+          if (state is GameCubitStateInitial) {
+            if (widget.gameId == null || widget.gameId!.isEmpty) {
+              cubit.createNewGame(widget.playerName);
+            } else {
+              cubit.joinExistingGame(widget.playerName, widget.gameId!);
+            }
+          }
+        },
+        builder: (context, state) {
+          if (state is GameCubitStateUninitialized || state is GameCubitStateInitial) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is GameCubitStateFinished) return const Text('Acabou!');
+
+          return GameBoard(
+            gameState: state.state,
+            squarePressed: (index) => cubit.markPosition(index),
+            playerValue: cubit.isSecondPlayer ? 'O' : 'X',
+            isSecondPlayer: cubit.isSecondPlayer,
+          );
+        },
       ),
     );
   }
-}
-
-class GameBoard extends StatelessWidget {
-  final GameState gameState;
-
-  const GameBoard({
-    required this.gameState,
-    super.key,
-  });
 
   @override
-  Widget build(BuildContext context) {
-    return Text(gameState.toString());
+  void dispose() {
+    cubit.dispose();
+    super.dispose();
   }
 }
