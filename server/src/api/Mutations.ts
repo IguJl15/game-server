@@ -9,6 +9,7 @@ interface JoinGame {
 }
 
 interface MarkPosition {
+    boardId: string
     playerId: string
     position: number
 }
