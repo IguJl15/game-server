@@ -66,6 +66,8 @@ export class Board extends Cloneable {
         )) {
             this.setWinner(this.currentPlayer)
         }
+
+        if (this.isFilled) this.status = "finished"
     }
 
     setWinner(player: Player) {
