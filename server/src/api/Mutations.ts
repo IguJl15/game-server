@@ -1,6 +1,6 @@
 interface CreateGameParameters {
     symbol: 'X' | 'O'
-    playerName?: String
+    playerName: string
 }
 
 interface JoinGame {
@@ -12,6 +12,11 @@ interface MarkPosition {
     boardId: string
     playerId: string
     position: number
+}
+
+interface CloseGame {
+    boardId?: string
+    playerId: string
 }
 
 export { CreateGameParameters, JoinGame, MarkPosition, CloseGame }
