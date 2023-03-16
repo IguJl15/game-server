@@ -22,13 +22,13 @@ export default
         // In waiting status means that second player never joined, so the host who quitted
         // Due to fact that all finished games are deleted, it is improbable, but not impossible, that a finished game remains on db
         // So the last status that would need some action is 'in game' status
-        if(board.status == "in game") {
-            const winner = params.playerId == board.player1.id! ? board.player2 : board.player1
+        if (board.status == "in game") {
+            const winner = params.playerId == board.player1.userId! ? board.player2 : board.player1
             board.setWinner(winner)
-            
-            this.playerNotifier.notifyGameState(board, winner.id!);
+
+            this.playerNotifier.notifyGameState(board, winner.userId!);
         }
-        
+
         this.repository.deleteBoard(board.boardId)
         return null
     }

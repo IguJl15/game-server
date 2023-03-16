@@ -50,7 +50,7 @@ export class Board extends Cloneable {
 
         this.checkBoard()
 
-        this.currentPlayer = this.currentPlayer.id == this.player1.id
+        this.currentPlayer = this.currentPlayer.userId == this.player1.userId
             ? this.player2
             : this.player1
     }
