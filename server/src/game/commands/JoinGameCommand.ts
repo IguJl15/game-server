@@ -1,32 +1,32 @@
 import { JoinGame } from "../../api/Mutations";
+import AuthorizeUserCommand from "../../auth/commands/AuthorizeUserCommand";
 import { BoardNotFoundError, FullBoardError } from "../Errors";
 import { Board } from "../entities/Board";
 import Player from "../entities/Player";
 import { BoardRepository } from "../repositories/BoardRepository";
 import Notifier from "../utils/Notifier";
-import Utils from "../utils/Utils";
-import GetGameStateCommand from "./GetGameStateCommand";
 
 export default
     class JoinGameCommand {
     constructor(
-        private getBoardCommand: GetGameStateCommand,
         private repository: BoardRepository,
+        private getUserCommand: AuthorizeUserCommand,
         private playerNotifier: Notifier,
     ) { }
 
     execute(params: JoinGame): Board {
+        const user = this.getUserCommand.execute(params.sessionId)
+
         let board = this.repository.getBoard(params.boardId)
 
         if (board == null) throw new BoardNotFoundError();
-
         if (board.player2) throw new FullBoardError();
 
         const player2Symbol = board.player1.value == "X" ? "O" : "X";
 
         board.player2 = new Player(
-            Utils.generateId(),
-            params.playerName,
+            user.id,
+            user.nickName,
             player2Symbol
         )
         board.status = "in game"
@@ -34,9 +34,8 @@ export default
         this.repository.saveBoard(board);
 
         const opponent = board.player1
-        const boardFromOpponentReference = this.getBoardCommand.execute({ boardId: board.boardId, playerId: opponent.id! })
-        this.playerNotifier.notifyGameState(boardFromOpponentReference, board.player1.id!)
+        this.playerNotifier.notifyGameState(board, opponent.userId)
 
-        return this.getBoardCommand.execute({ boardId: board.boardId, playerId: board.player2.id! });
+        return board;
     }
 }

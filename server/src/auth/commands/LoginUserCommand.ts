@@ -1,6 +1,7 @@
-import { IUserRepository } from "../repositories/UserRepositorie";
-import { User } from "../entities/User";
+import { IUserRepository } from "../repositories/UserRepository";
 import { IUserCredentials } from "../../api/Mutations";
+import Session from "../entities/Session";
+import Utils from "../../game/utils/Utils";
 
 export default
     class LoginUserCommand {
@@ -22,9 +23,12 @@ export default
             throw new Error("A senha esta incorreta")
         }
 
-        return existingUser;
+        const newSessionId = Utils.generateId();
+
+        existingUser.sessionId = newSessionId;
+
+        this.repository.saveUser(existingUser);
+
+        return new Session(existingUser.sessionId, existingUser.nickName);
     }
 }
-
-//deve existir um user com o mesmo nickname passado como parametro, entao jogar um novo erro
-// encontrando o nickname vc deve conferir a senha passada como parametro eh igual a senha armazenada no user

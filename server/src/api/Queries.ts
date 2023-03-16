@@ -1,6 +1,6 @@
 interface GameState {
+    sessionId: string
     boardId: string
-    playerId?: string
 }
 
 export { GameState }

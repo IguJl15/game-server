@@ -25,7 +25,7 @@ class ArrayBoardRepo implements BoardRepository {
 
     getBoardByPlayerId(playerId: string) {
         for (const [boardId, board] of this.boards.entries()) {
-            if(board.player1.id == playerId || board.player2?.id == playerId) return board
+            if(board.player1.userId == playerId || board.player2?.userId == playerId) return board
         }
         
         return null
