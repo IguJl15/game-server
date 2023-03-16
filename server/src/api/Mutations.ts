@@ -19,4 +19,22 @@ interface CloseGame {
     playerId: string
 }
 
-export { CreateGameParameters, JoinGame, MarkPosition, CloseGame }
+interface IUserCredentials {
+    userName: string;
+    password: string;
+}
+
+interface IUserRegister {
+    userName: string;
+    password: string;
+    confimedPassword: string;
+}
+
+export { 
+    CreateGameParameters, 
+    JoinGame, 
+    MarkPosition, 
+    CloseGame, 
+    IUserCredentials, 
+    IUserRegister
+}
