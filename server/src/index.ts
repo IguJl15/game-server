@@ -1,5 +1,6 @@
 import * as net from 'net';
 import Director from './api/Director';
+import { Board } from './game/entities/Board';
 
 export default
    class SocketServer {
@@ -34,7 +35,7 @@ export default
 
                // map players to connections
                if ('CreateGame' in json) {
-                  const playerId = response.GameState.player1.id!
+                  const playerId = (response as {GameState:Board}).GameState.player1.id!
                   SocketServer.activeConnections.set(playerId, socket);
                }
             } catch (error) {
