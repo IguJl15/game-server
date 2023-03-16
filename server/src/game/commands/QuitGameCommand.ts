@@ -29,7 +29,6 @@ export default
             this.playerNotifier.notifyGameState(board, winner.userId);
         }
 
-        this.repository.deleteBoard(board.boardId)
         return null
     }
 }
