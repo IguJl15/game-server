@@ -1,41 +1,86 @@
 import * as net from 'net';
+import Director from './api/Director';
 
-const server: net.Server = net.createServer()
-const activeConnections = new Map<String, net.Socket>()
+export default
+   class SocketServer {
 
-server.on("connection", (socket: net.Socket) => {
-   activeConnections.set(`${socket.remoteAddress}:${socket.remotePort}`, socket)
+   private server: net.Server
+   director = new Director();
+   static currentConnection: net.Socket | null
+   static activeConnections = new Map<string, net.Socket>()
    
-   console.log(`[Server] Current connections:`)
-   for (const connection of activeConnections.keys()){
-      console.log(connection);
+   constructor() {
+      this.server = net.createServer()
+      
+      this.server.on("connection", (socket: net.Socket) => {
+         const connectionName = `${socket.remoteAddress}:${socket.remotePort}`
+
+         socket.on("connect", () => {
+            console.log(`[Server] Cliente que acaba de conectar: ${socket.remoteAddress}:${socket.remotePort}`);
+         })
+
+         socket.on("data", (data: Buffer) => {
+            SocketServer.currentConnection = socket
+            try {
+               const json = JSON.parse(data.toString())
+
+               const action = Object.keys(json)[0]!
+               const response = Director.direct(action, json)
+
+               if (!response) throw new Error();
+               console.log(`Response to client: ${response}`);
+
+               socket.write(JSON.stringify(response));
+
+               // map players to connections
+               if ('CreateGame' in json) {
+                  const playerId = response.GameState.player1.id!
+                  SocketServer.activeConnections.set(playerId, socket);
+               }
+            } catch (error) {
+               console.log(error);
+            } finally {
+               SocketServer.currentConnection = null
+            }
+         })
+
+         socket.on('close', (hadError) => {
+            console.log(`[Server] Conexão com ${connectionName} finalizada` + (hadError ? " com erros" : ""))
+
+            for (const [playerId, storedSocket] of SocketServer.activeConnections.entries()) {
+               if (storedSocket == socket) {
+                  SocketServer.activeConnections.delete(playerId)
+                  Director.direct("CloseGame", {"playerId": playerId})
+               }
+            }
+         })
+      })
+
+      this.server.on('end', () => {
+         console.log('Server ended');
+      });
+
+      this.server.on("close", () => {
+         console.log("Servidor fechado")
+      })
    }
-   
-   socket.on("connect", () => {
-      console.log(`[Server] Cliente que acaba de conectar: ${socket.remoteAddress}:${socket.remotePort}`);
-   })
+   start(port: number) {
+      this.server.listen(port, () => {
+         console.log(`Servidor inicializado na porta ${port}`);
+      });
+   }
 
-   socket.on("ready", () => { console.log("Client ready") })
-   socket.on("data", (data) => { 
-      console.log(`[Client] ${data}`)
-      socket.write("Escutado. Beleza, vlw 👍")
-   })
+   static sendMessageToPlayer(state: any, playerId: string) { 
+      console.log(`sending message to player ${playerId}`);
+      
+      this.activeConnections.get(playerId)?.write(JSON.stringify(state)) 
+   }
+}
 
-   socket.on('close', (hadError) => {
-      console.log(`[Server] Conexão com ${socket.remoteAddress} finalizada` + (hadError ? " com erros" : ""))
-      activeConnections.delete(`${socket.remoteAddress}:${socket.remotePort}`)
-   })
-})
 
-server.on('end', () => {
-   console.log('Server ended');
-});
 
-server.on("close", () => {
-   console.log("Servidor fechado")
-})
 
-const port = 3000
-server.listen(port, () => {
-   console.log(`Servidor inicializado na porta ${port}`);
-});
+
+const socketServer = new SocketServer()
+
+socketServer.start(3000)
