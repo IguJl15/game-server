@@ -1,3 +1,8 @@
+export interface ObfuscateUser {
+    id: string,
+    nickName: string,
+}
+
 export class User {
     constructor(
         public id: string,
@@ -8,4 +13,11 @@ export class User {
 
         public boardIds = []
     ) { }
+
+    obfuscate(): ObfuscateUser {
+        return {
+            id: this.id,
+            nickName: this.nickName
+        }
+    }
 }
