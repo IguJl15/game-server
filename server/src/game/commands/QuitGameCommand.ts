@@ -23,10 +23,10 @@ export default
         // Due to fact that all finished games are deleted, it is improbable, but not impossible, that a finished game remains on db
         // So the last status that would need some action is 'in game' status
         if (board.status == "in game") {
-            const winner = params.playerId == board.player1.userId! ? board.player2 : board.player1
+            const winner = params.playerId == board.player1.userId ? board.player2 : board.player1
             board.setWinner(winner)
 
-            this.playerNotifier.notifyGameState(board, winner.userId!);
+            this.playerNotifier.notifyGameState(board, winner.userId);
         }
 
         this.repository.deleteBoard(board.boardId)

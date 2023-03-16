@@ -38,14 +38,14 @@ export default
         switch (action) {
             case "CreateGame":
                 gameState = this.createGame(request["CreateGame"] as CreateGameParameters);
-                requestPlayerId = gameState.GameState.player1.userId!;
+                requestPlayerId = gameState.GameState.player1.userId;
                 break;
             case "JoinGame":
                 gameState = this.joinGame(request["JoinGame"] as JoinGame);
-                requestPlayerId = gameState.GameState.player2.userId!;
+                requestPlayerId = gameState.GameState.player2.userId;
                 break;
             case "MarkPosition":
-                requestPlayerId = (request["MarkPosition"] as MarkPosition).playerId
+                requestPlayerId = (request["MarkPosition"] as MarkPosition).sessionId
                 gameState = this.markPosition(request["MarkPosition"] as MarkPosition);
                 break;
             case "Register":

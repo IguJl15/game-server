@@ -35,7 +35,7 @@ export default
 
                // map players to connections
                if ('CreateGame' in json) {
-                  const playerId = (response as {GameState:Board}).GameState.player1.userId!
+                  const playerId = (response as {GameState:Board}).GameState.player1.userId;
                   SocketServer.activeConnections.set(playerId, socket);
                }
             } catch (error) {
