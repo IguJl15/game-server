@@ -1,7 +1,8 @@
 import { IUserRegister } from "../../api/Mutations";
 import Utils from "../../game/utils/Utils";
-import { IUserRepository } from "../repositories/UserRepositorie";
+import { IUserRepository } from "../repositories/UserRepository";
 import { User } from "../entities/User";
+import Session from "../entities/Session";
 
 
 export default
@@ -11,9 +12,9 @@ export default
     ) { }
 
     validate(params: IUserRegister) {
-        const exsinstingUser = this.repository.getUserByNickname(params.userName)
+        const existingUser = this.repository.getUserByNickname(params.userName)
 
-        if (exsinstingUser) {
+        if (existingUser) {
             throw new Error('Esse usuario ja existe')
         }
 
@@ -24,11 +25,18 @@ export default
 
     }
 
-    execute(params: IUserRegister) {
+    execute(params: IUserRegister): Session {
         this.validate(params)
 
-        const newUser = new User(Utils.generateId(), params.userName, params.password);
-        const savedNewUser = this.repository.saveUser(newUser);
-        return newUser
+        const newUser = new User(
+            Utils.generateId(),
+            params.userName,
+            params.password,
+            Utils.generateId(),
+        );
+
+        this.repository.saveUser(newUser);
+
+        return new Session(newUser.sessionId, newUser.nickName)
     }
 }
