@@ -50,7 +50,7 @@ export default
                 break;
             case "Register":
                 return this.createUser(request["Register"] as IUserRegister)
-            case "Register":
+            case "Login":
                 return this.verifyUser(request["Login"] as IUserCredentials)
             case "CloseGame":
                 this.closeGame(request as CloseGame);
