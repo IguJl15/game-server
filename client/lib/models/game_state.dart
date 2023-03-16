@@ -20,10 +20,37 @@ class GameState {
         board: Board.empty(),
         status: GameStatus.waiting,
       );
+
+  factory GameState.fromJson(Map<String, dynamic> json) => GameState(
+        board: Board.fromJson(json),
+        player1: Player.fromJson(json['player1'], json['currentPlayer']['id'] == json['player1']['id']),
+        player2: json['player2'] == null
+            ? null
+            : Player.fromJson(json['player2'], json['currentPlayer']['id'] == json['player2']['id']),
+        status: GameStatus.parse(json['status']),
+      );
 }
 
 enum GameStatus {
   waiting,
   inGame,
   finished;
+
+  static GameStatus parse(String string) {
+    string
+      ..trim()
+      ..toLowerCase();
+
+    switch (string) {
+      case 'waiting':
+        return GameStatus.waiting;
+      case 'ingame':
+      case 'in game':
+        return GameStatus.inGame;
+      case 'finished':
+        return GameStatus.finished;
+      default:
+        throw const FormatException();
+    }
+  }
 }
