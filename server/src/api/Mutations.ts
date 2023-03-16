@@ -1,16 +1,16 @@
 interface CreateGameParameters {
     symbol: 'X' | 'O'
-    playerName: string
+    sessionId: string
 }
 
 interface JoinGame {
-    playerName: string
+    sessionId: string
     boardId: string
 }
 
 interface MarkPosition {
     boardId: string
-    playerId: string
+    sessionId: string
     position: number
 }
 
