@@ -1,31 +1,33 @@
 import { CreateGameParameters } from "../../api/Mutations";
+import AuthorizeUserCommand from "../../auth/commands/AuthorizeUserCommand";
 import { Board } from "../entities/Board";
 import Player from "../entities/Player";
 import { BoardRepository } from "../repositories/BoardRepository";
 import Utils from "../utils/Utils";
-import GetGameStateCommand from "./GetGameStateCommand";
 
 export default
-class CreateGameCommand {
+    class CreateGameCommand {
     constructor(
         private repository: BoardRepository,
-        private getBoardCommand: GetGameStateCommand
-    ) {}
-    
+        private getUserCommand: AuthorizeUserCommand
+    ) { }
+
     execute(params: CreateGameParameters): Board {
+        const user = this.getUserCommand.execute(params.sessionId)
+
         const player1 = new Player(
-            Utils.generateId(),
-            params.playerName!,
+            user.id,
+            user.nickName,
             params.symbol,
         )
 
         const board = new Board(
-                Utils.generateId(),
-                player1,
+            Utils.generateId(),
+            player1,
         )
 
-        const boardId = this.repository.saveBoard(board)
-        
-        return this.getBoardCommand.execute({playerId: player1.id!, boardId: board.boardId})
+        this.repository.saveBoard(board)
+
+        return board;
     }
 }
