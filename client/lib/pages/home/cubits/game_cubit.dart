@@ -4,19 +4,20 @@ import 'dart:io';
 import 'package:client/data/client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../models/game_state.dart';
-import '../../models/player.dart';
+import '../../../models/auth_data_singleton.dart';
+import '../../../models/game_state.dart';
+import '../../../models/player.dart';
 
 part 'game_cubit_state.dart';
 
 class GameCubit extends Cubit<GameCubitState> {
-  late SocketClient _client;
+  final SocketClient _client;
 
   Player player;
   late bool isSecondPlayer;
 
-  GameCubit(this.player) : super(GameCubitStateUninitialized(player)) {
-    _client = SocketClient(onData: _onSocketData, onError: _onError);
+  GameCubit(this.player, this._client) : super(GameCubitStateUninitialized(player)) {
+    _client.stream.listen(_onSocketData);
   }
 
   void initialize() async {
@@ -55,7 +56,7 @@ class GameCubit extends Cubit<GameCubitState> {
   void createNewGame(String playerName) async {
     final Map<String, dynamic> createGameJson = {
       'CreateGame': {
-        'playerName': playerName,
+        'sessionId': AuthDataSingleton.authData.sessionId,
         'symbol': 'X',
       }
     };
@@ -71,7 +72,7 @@ class GameCubit extends Cubit<GameCubitState> {
 
     final Map<String, dynamic> createGameJson = {
       'JoinGame': {
-        'playerName': playerName,
+        'sessionId': AuthDataSingleton.authData.sessionId,
         'boardId': boardId,
       }
     };
@@ -85,11 +86,9 @@ class GameCubit extends Cubit<GameCubitState> {
   void markPosition(int position) {
     assert(0 <= position && position < 9);
 
-    final playerId = player.id!;
-
     Map<String, dynamic> markPositionJson = {
       'MarkPosition': {
-        'playerId': playerId,
+        'sessionId': AuthDataSingleton.authData.sessionId,
         'boardId': state.state.board.id,
         'position': position,
       }
@@ -98,11 +97,10 @@ class GameCubit extends Cubit<GameCubitState> {
     _client.sendMessage(jsonEncode(markPositionJson));
   }
 
-  void dispose() {
-    _client.dispose();
-  }
-
   Future<void> _setPlayerFromState() {
-    return stream.first.then((value) => player = isSecondPlayer ? value.state.player2! : value.state.player1);
+    return stream.first.then((value) {
+      print(value);
+      player = isSecondPlayer ? value.state.player2! : value.state.player1;
+    });
   }
 }
