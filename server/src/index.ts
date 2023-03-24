@@ -9,13 +9,12 @@ export default
    director = new Director();
    static currentConnection: net.Socket | null
    static activeConnections = new Map<string, net.Socket>()
-   
+
    constructor() {
       this.server = net.createServer()
-      
+
       this.server.on("connection", (socket: net.Socket) => {
          const connectionName = `${socket.remoteAddress}:${socket.remotePort}`
-
          socket.on("connect", () => {
             console.log(`[Server] Cliente que acaba de conectar: ${socket.remoteAddress}:${socket.remotePort}`);
          })
@@ -29,13 +28,14 @@ export default
                const response = Director.direct(action, json)
 
                if (!response) throw new Error();
-               console.log(`Response to client: ${response}`);
+               const responseJson = JSON.stringify(response)
+               console.log(`Response to client: ` + responseJson);
 
-               socket.write(JSON.stringify(response));
+               socket.write(responseJson);
 
                // map players to connections
                if ('CreateGame' in json) {
-                  const playerId = (response as {GameState:Board}).GameState.player1.userId;
+                  const playerId = (response as { GameState: Board }).GameState.player1.userId;
                   SocketServer.activeConnections.set(playerId, socket);
                }
             } catch (error) {
@@ -51,35 +51,25 @@ export default
             for (const [playerId, storedSocket] of SocketServer.activeConnections.entries()) {
                if (storedSocket == socket) {
                   SocketServer.activeConnections.delete(playerId)
-                  Director.direct("CloseGame", {"playerId": playerId})
+                  Director.direct("CloseGame", { "playerId": playerId })
                }
             }
          })
       })
-
-      this.server.on('end', () => {
-         console.log('Server ended');
-      });
-
-      this.server.on("close", () => {
-         console.log("Servidor fechado")
-      })
    }
+
    start(port: number) {
       this.server.listen(port, () => {
          console.log(`Servidor inicializado na porta ${port}`);
       });
    }
 
-   static sendMessageToPlayer(state: any, playerId: string) { 
+   static sendMessageToPlayer(state: any, playerId: string) {
       console.log(`sending message to player ${playerId}`);
-      
-      this.activeConnections.get(playerId)?.write(JSON.stringify(state)) 
+
+      this.activeConnections.get(playerId)?.write(JSON.stringify(state))
    }
 }
-
-
-
 
 
 const socketServer = new SocketServer()
