@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:client/data/client.dart';
-import 'package:client/models/auth_data.dart';
 import 'package:meta/meta.dart';
+
+import '../../../data/client.dart';
+import '../../../models/auth_data.dart';
 
 part 'login_state.dart';
 
@@ -14,17 +14,28 @@ class LoginCubit extends Cubit<LoginState> {
   LoginCubit(this._client) : super(LoginUninitialized());
 
   void init() async {
-    if (_client.initialized) {
+    try {
+      if (!_client.initialized) {
+        await _client.init();
+      }
+
       emit(LoginInitialized());
-      return;
+    } catch (e) {
+      emit(LoginFailure("Não foi possível conectar ao servidor"));
     }
-
-    await _client.init();
-
-    emit(LoginInitialized());
   }
 
   loginButtonPressed(String nickName, String password) async {
+    try {
+      if (!_client.initialized) {
+        await _client.init();
+      }
+
+      emit(LoginInitialized());
+    } catch (e) {
+      emit(LoginFailure("Não foi possível conectar ao servidor"));
+    }
+
     final Map<String, dynamic> createGameJson = {
       'Login': {
         'userName': nickName,

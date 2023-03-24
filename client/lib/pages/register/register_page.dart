@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:client/models/auth_data_singleton.dart';
+import 'package:client/pages/components/failure_dialog.dart';
 import 'package:client/pages/home/home_page.dart';
 import 'package:client/pages/login/login_page.dart';
 import 'package:flutter/material.dart';

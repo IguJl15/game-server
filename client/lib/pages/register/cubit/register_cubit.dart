@@ -12,17 +12,25 @@ class RegisterCubit extends Cubit<RegisterState> {
   RegisterCubit(this._client) : super(RegisterUninitialized());
 
   void init() async {
-    if (_client.initialized) {
+    try {
+      if (!_client.initialized) {
+        await _client.init();
+      }
+
       emit(RegisterInitialized());
-      return;
+    } catch (e) {
+      emit(RegisterFailure("Não foi possível conectar ao servidor"));
     }
-
-    await _client.init();
-
-    emit(RegisterInitialized());
   }
 
   registerButtonPressed(String nickName, String password, String passwordConfirmation) async {
+    try {
+      if (!_client.initialized) await _client.init();
+    } catch (e) {
+      emit(RegisterFailure("Não foi possível conectar ao servidor"));
+      return;
+    }
+
     final Map<String, dynamic> createGameJson = {
       'Register': {
         'userName': nickName,

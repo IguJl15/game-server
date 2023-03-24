@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/client.dart';
 import '../../models/auth_data_singleton.dart';
+import '../components/failure_dialog.dart';
 import '../home/home_page.dart';
 
 class LoginPage extends StatelessWidget {
@@ -28,7 +29,6 @@ class LoginPage extends StatelessWidget {
       body: BlocConsumer<LoginCubit, LoginState>(
         bloc: cubit,
         listener: (context, state) {
-          print("LISTENER: ${state.runtimeType}");
           if (state is LoginUninitialized) cubit.init();
 
           if (state is LoginSuccessful) {
