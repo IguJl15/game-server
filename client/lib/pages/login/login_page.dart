@@ -30,7 +30,12 @@ class LoginPage extends StatelessWidget {
         bloc: cubit,
         listener: (context, state) {
           if (state is LoginUninitialized) cubit.init();
-
+          if (state is LoginFailure) {
+            showDialog(
+              context: context,
+              builder: (context) => FailureDialog(message: state.error),
+            );
+          }
           if (state is LoginSuccessful) {
             AuthDataSingleton.setAuthData(state.authData);
 

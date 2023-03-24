@@ -32,7 +32,13 @@ class RegisterPage extends StatelessWidget {
       body: BlocConsumer<RegisterCubit, RegisterState>(
         bloc: cubit,
         listener: (context, state) {
-          print("LISTENER: ${state.runtimeType}");
+          if (state is RegisterFailure) {
+            showDialog(
+              context: context,
+              builder: (context) => FailureDialog(message: state.error),
+            );
+            
+          }
           if (state is RegisterUninitialized) cubit.init();
           if (state is RegisterSuccessful) {
             AuthDataSingleton.setAuthData(state.authData);
