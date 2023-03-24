@@ -4,26 +4,26 @@ import 'dart:typed_data';
 
 class SocketClient {
   late Socket _socket;
-  final StreamController<String> _streamController = StreamController.broadcast();
+  final StreamController<String> _dataStreamController = StreamController.broadcast();
+  bool initialized = false;
 
-  Stream<String> get stream => _streamController.stream;
+  Stream<String> get stream => _dataStreamController.stream;
 
   final void Function(dynamic error)? onError;
   final Function()? onDone;
 
   SocketClient({
-    required Function(String data) onData,
     this.onError,
     this.onDone,
-  }) {
-    stream.listen((data) => onData(data));
-  }
+  });
 
   Future<void> init() async {
+    if (initialized) return;
+
     _socket = await Socket.connect('localhost', 3000);
 
     _socket.listen(
-      (Uint8List data) => _streamController.add(String.fromCharCodes(data)),
+      (Uint8List data) => _dataStreamController.add(String.fromCharCodes(data)),
       onError: (error) {
         onError?.call(error);
 
@@ -35,14 +35,12 @@ class SocketClient {
         _socket.destroy();
       },
     );
+
+    initialized = true;
   }
 
   Future<void> sendMessage(String message) async {
     print('Client: $message');
     _socket.write(message);
-  }
-
-  void dispose() {
-    _socket.destroy();
   }
 }
