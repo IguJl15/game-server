@@ -27,7 +27,7 @@ interface IUserCredentials {
 interface IUserRegister {
     userName: string;
     password: string;
-    confimedPassword: string;
+    confirmedPassword: string;
 }
 
 export { 

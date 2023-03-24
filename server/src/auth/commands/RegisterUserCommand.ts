@@ -18,7 +18,7 @@ export default
             throw new Error('Esse usuario ja existe')
         }
 
-        const passwordsAreEqual = params.password == params.confimedPassword
+        const passwordsAreEqual = params.password == params.confirmedPassword
         if (!passwordsAreEqual) {
             throw new Error('As senhas nao sao iguais')
         }
