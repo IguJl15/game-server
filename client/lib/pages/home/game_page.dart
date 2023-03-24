@@ -1,18 +1,22 @@
-import 'package:client/pages/cubits/game_cubit.dart';
+import 'package:client/data/client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/player.dart';
+import '../../models/auth_data_singleton.dart';
+import '../../models/player.dart';
 import 'components/game_board.dart';
+import 'cubits/game_cubit.dart';
 
 class GamePage extends StatefulWidget {
-  final String playerName;
+  final String playerName = AuthDataSingleton.authData.nickName;
   final bool isSecondPlayer;
   final String? gameId;
 
-  const GamePage({
-    required this.playerName,
+  final SocketClient socketClient;
+
+  GamePage({
     required this.isSecondPlayer,
+    required this.socketClient,
     this.gameId,
     super.key,
   });
@@ -30,7 +34,7 @@ class _GamePageState extends State<GamePage> {
 
     final Player player = Player.empty(widget.playerName);
 
-    cubit = GameCubit(player);
+    cubit = GameCubit(player, widget.socketClient);
     cubit.initialize();
   }
 
@@ -68,11 +72,5 @@ class _GamePageState extends State<GamePage> {
         },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    cubit.dispose();
-    super.dispose();
   }
 }

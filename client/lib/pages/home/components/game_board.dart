@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/game_state.dart';
+import '../../../models/game_state.dart';
 import 'board_square.dart';
 import 'footer.dart';
 

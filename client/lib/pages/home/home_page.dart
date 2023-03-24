@@ -1,26 +1,33 @@
-import 'package:client/pages/game_page.dart';
+import 'package:client/data/client.dart';
+import 'package:client/models/auth_data_singleton.dart';
+import 'package:client/pages/home/game_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
   final nameFieldController = TextEditingController();
   final gameIdFieldController = TextEditingController();
+  final SocketClient client;
 
-  HomePage({super.key});
+  HomePage({
+    required this.client,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text(AuthDataSingleton.authData.nickName), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           child: Container(
             width: 600,
             child: Column(
               children: [
-                NameWidget(nameFieldController: nameFieldController),
                 const SizedBox(height: 100),
                 EnterGameWidget(
-                    gameIdFieldController: gameIdFieldController,
-                    nameFieldController: nameFieldController),
+                  gameIdFieldController: gameIdFieldController,
+                  client: client,
+                ),
               ],
             ),
           ),
@@ -66,12 +73,9 @@ class NameWidget extends StatelessWidget {
 
 class EnterGameWidget extends StatelessWidget {
   final TextEditingController gameIdFieldController;
-  final TextEditingController nameFieldController;
+  final SocketClient client;
 
-  const EnterGameWidget(
-      {super.key,
-      required this.gameIdFieldController,
-      required this.nameFieldController});
+  const EnterGameWidget({super.key, required this.gameIdFieldController, required this.client});
 
   @override
   Widget build(BuildContext context) {
@@ -89,11 +93,8 @@ class EnterGameWidget extends StatelessWidget {
             child: TextFormField(
               maxLines: 1,
               maxLength: 5,
-              decoration:
-                  const InputDecoration(label: Text('Código da partida')),
-              validator: (value) => value?.length != 5
-                  ? 'id do jogo deve conter 5 caracteres'
-                  : null,
+              decoration: const InputDecoration(label: Text('Código da partida')),
+              validator: (value) => value?.length != 5 ? 'id do jogo deve conter 5 caracteres' : null,
               controller: gameIdFieldController,
             ),
           ),
@@ -107,9 +108,10 @@ class EnterGameWidget extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => GamePage(
-                          playerName: nameFieldController.text,
-                          isSecondPlayer: true,
-                          gameId: gameIdFieldController.text),
+                        isSecondPlayer: true,
+                        gameId: gameIdFieldController.text,
+                        socketClient: client,
+                      ),
                     ),
                   );
                 },
@@ -121,8 +123,9 @@ class EnterGameWidget extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => GamePage(
-                          playerName: nameFieldController.text,
-                          isSecondPlayer: false),
+                        isSecondPlayer: false,
+                        socketClient: client,
+                      ),
                     ),
                   );
                 },
